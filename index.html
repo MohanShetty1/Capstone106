@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Income Tax Fraud Detection</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-image: url("{{ url_for('static', filename='img.jpg') }}");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            /*background-color: #f4f4f9;*/
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Container styling */
+        div {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 450px;
+            box-sizing: border-box;
+            text-align: center;
+        }
+
+        /* Heading styles */
+        h1 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        h4 {
+            margin-bottom: 20px;
+            color: #555;
+            font-weight: normal;
+        }
+
+        /* Form field styles */
+        label {
+            display: block;
+            margin: 10px 0 5px 0;
+            padding: 0px;
+            font-weight: bold;
+            color: #333;
+            text-align: left;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="date"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+
+        /* Button styles */
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        /* Result message */
+        #result {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 600px) {
+            div {
+                width: 90%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <h1>Income Tax Fraud Detection</h1>
+        <form id="details-form">
+            <label for="first_name">First Name:</label><br>
+            <input type="text" id="first_name" name="first_name" required><br>
+            <label for="last_name">Last Name:</label><br>
+            <input type="text" id="last_name" name="last_name" required><br>
+            <label for="dob">Date of Birth:</label><br>
+            <input type="date" id="dob" name="dob" required><br>
+            <label for="income">Income:</label><br>
+            <input type="number" id="income" name="income" required><br>
+            <label for="deductions">Deductions:</label><br>
+            <input type="number" id="deductions" name="deductions" required><br>
+            <label for="expenses">Expenses:</label><br>
+            <input type="number" id="expenses" name="expenses" required><br>
+            <label for="tax_paid">Tax Paid:</label><br>
+            <input type="number" id="tax_paid" name="tax_paid" required><br>
+            <button type="submit">Check</button>
+        </form>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        const form = document.getElementById('details-form');
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            
+            const data = {
+                first_name: document.getElementById('first_name').value,
+                last_name: document.getElementById('last_name').value,
+                income: parseFloat(document.getElementById('income').value),
+                deductions: parseFloat(document.getElementById('deductions').value),
+                expenses: parseFloat(document.getElementById('expenses').value),
+                tax_paid: parseFloat(document.getElementById('tax_paid').value),
+            };
+
+            const response = await fetch('/predict', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
+
+            //const result = await response.json();
+            //document.getElementById('result').textContent = result.is_fraud ? "Fraud Detected!" : "No Fraud Detected";
+            const result = await response.json();
+            const resultDiv = document.getElementById('result');
+            if (result.is_fraud) {
+                resultDiv.textContent = `Fraud Detected! Amount to be paid: ${result.amount_to_be_paid}`;
+            } else {
+                resultDiv.textContent = "No Fraud Detected. Tax payment is accurate.";
+        }
+        });
+    </script>
+</body>
+</html>
